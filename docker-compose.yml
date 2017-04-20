@@ -1,0 +1,29 @@
+version: '2'
+services:
+  mysql:
+    image: mysql
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./mysqlsampledatabase.sql:/docker-entrypoint-initdb.d/sample_database.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+    ports:
+      - "3306:3306"
+    networks:
+      - db
+  mysql_client:
+    build: ./mysql_client
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+    networks:
+      - db
+    depends_on:
+      - mysql
+    stdin_open: true
+    tty: true
+    entrypoint: entrypoint.sh
+    #command: bash -c 'source ~/.bashrc && mycli -h mysql -P 3306 -uroot -ppass'
+    command: mycli -hmysql -P3306 -uroot -ppass
+
+networks:
+  db:
